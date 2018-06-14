@@ -30,12 +30,12 @@ public class TileSlot {
 					this.r = null;
 					this.g = null;
 					this.b = null;
-					if (grid.getUndo().getR() != null)
-						this.r = new Tile(this, grid.getUndo().getR());
-					if (grid.getUndo().getG() != null)
-						this.g = new Tile(this, grid.getUndo().getG());
-					if (grid.getUndo().getB() != null)
-						this.b = new Tile(this, grid.getUndo().getB());
+					if (grid.getUndo().getRed() != null)
+						this.r = new Tile(this, grid.getUndo().getRed());
+					if (grid.getUndo().getGreen() != null)
+						this.g = new Tile(this, grid.getUndo().getGreen());
+					if (grid.getUndo().getBlue() != null)
+						this.b = new Tile(this, grid.getUndo().getBlue());
 					grid.removeUndo();
 				}
 			} else {
@@ -98,7 +98,8 @@ public class TileSlot {
 			else
 			{
 				if(grid.getMain().getKeyInput().isKeyDown(KeyEvent.VK_SHIFT)) {
-					fillAround(new ArrayList<>(), this);
+					if(grid.getTileSlotAtPixel(grid.getMain().getKeyInput().getMouseX(), grid.getMain().getKeyInput().getMouseY()).equals(this))
+						fillAround(new ArrayList<>(), new RGBStorage(this, (this.getRed() != null?this.getRed().getType():null), (this.getGreen() != null?this.getGreen().getType():null), (this.getBlue() != null?this.getBlue().getType():null)));
 				}
 			}
 		} 
@@ -108,29 +109,31 @@ public class TileSlot {
 		}
 	}
 
-	public void fillAround(List<TileSlot> closedList, TileSlot original)
+	public void fillAround(List<TileSlot> closedList, RGBStorage original)
 	{
 		if(grid.selected == null)
 			return;
 		if(closedList.contains(this))
 			return;
 		TileSlot slot = this;
-		if((slot.getRed() == null && original.getRed() == null) || slot.getRed() != null && original.getRed() != null && slot.getRed().getType() == original.getRed().getType()) 
-			slot.setRed((grid.selected.getRed() != null?new Tile(slot, grid.selected.getRed().type):new Tile(slot, TileType.Void)));
-		if((slot.getGreen() == null && original.getGreen() == null) || slot.getGreen() != null && original.getGreen() != null && slot.getGreen().getType() == original.getGreen().getType()) 
-			slot.setGreen((grid.selected.getGreen() != null?new Tile(slot, grid.selected.getGreen().type):new Tile(slot, TileType.Void)));
-		if((slot.getBlue() == null && original.getBlue() == null) || slot.getBlue() != null && original.getBlue() != null && slot.getBlue().getType() == original.getBlue().getType()) 
+		if(slot.isSimilar(original))
+		{
+			System.out.println("WINNER");
 			slot.setBlue((grid.selected.getBlue() != null?new Tile(slot, grid.selected.getBlue().type):new Tile(slot, TileType.Void)));
-
-		closedList.add(this);
-		if(grid.getTileSlotAtPixel(x+1, y) != null)
-			grid.getTileSlotAtPixel(x+1, y).fillAround(closedList, original);
-		if(grid.getTileSlotAtPixel(x-1, y) != null)
-			grid.getTileSlotAtPixel(x-1, y).fillAround(closedList, original);
-		if(grid.getTileSlotAtPixel(x, y+1) != null)
-			grid.getTileSlotAtPixel(x, y+1).fillAround(closedList, original);
-		if(grid.getTileSlotAtPixel(x, y-1) != null)
-			grid.getTileSlotAtPixel(x, y-1).fillAround(closedList, original);
+			slot.setRed((grid.selected.getRed() != null?new Tile(slot, grid.selected.getRed().type):new Tile(slot, TileType.Void)));
+			slot.setGreen((grid.selected.getGreen() != null?new Tile(slot, grid.selected.getGreen().type):new Tile(slot, TileType.Void)));
+			closedList.add(this);
+			int x = slot.getTileX();
+			int y = slot.getTileY();
+			if(grid.getTileSlotAt(x+1, y) != null)
+				grid.getTileSlotAt(x+1, y).fillAround(closedList, original);
+			if(grid.getTileSlotAt(x-1, y) != null)
+				grid.getTileSlotAt(x-1, y).fillAround(closedList, original);
+			if(grid.getTileSlotAt(x, y+1) != null)
+				grid.getTileSlotAt(x, y+1).fillAround(closedList, original);
+			if(grid.getTileSlotAt(x, y-1) != null)
+				grid.getTileSlotAt(x, y-1).fillAround(closedList, original);
+		} else System.out.println("LOSER");
 
 	}
 
@@ -167,6 +170,21 @@ public class TileSlot {
 				i = 1;
 			}
 		}
+	}
+
+	public boolean isSimilar(RGBStorage slot)
+	{
+		if((slot.getRed() == null && this.getRed() == null) || slot.getRed() != null && this.getRed() != null && slot.getRed() == this.getRed().getType()) {
+			System.out.println("a2");
+			if((slot.getGreen() == null && this.getGreen() == null) || slot.getGreen() != null && this.getGreen() != null && slot.getGreen() == this.getGreen().getType()) {
+				System.out.println("a3");
+				if((slot.getBlue() == null && this.getBlue() == null) || slot.getBlue() != null && this.getBlue() != null && slot.getBlue() == this.getBlue().getType()) {
+					System.out.println("a4");
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public void render(Graphics graphics) {

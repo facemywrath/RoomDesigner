@@ -12,15 +12,15 @@ public class RGBStorage {
 		this.slot = slot;
 	}
 
-	public TileType getR() {
+	public TileType getRed() {
 		return r;
 	}
 
-	public TileType getG() {
+	public TileType getGreen() {
 		return g;
 	}
 
-	public TileType getB() {
+	public TileType getBlue() {
 		return b;
 	}
 	

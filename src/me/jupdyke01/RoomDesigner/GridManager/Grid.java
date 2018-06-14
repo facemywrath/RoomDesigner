@@ -41,6 +41,7 @@ public class Grid {
 			folder.mkdir();
 		File imageFile = new File(folder, folder.listFiles().length + ".png");
 		BufferedImage image = new BufferedImage(main.getTileX(), main.getTileY(), BufferedImage.TYPE_INT_RGB);
+		image.createGraphics();
 		try {
 			if (!imageFile.exists()) 
 				imageFile.createNewFile();
@@ -52,29 +53,27 @@ public class Grid {
 		{
 			for(int y = 0; y < main.getTileY(); y++)
 			{
-				TileSlot at = getTileSlotAtPixel(x, y);
+				TileSlot at = getTileSlotAt(x, y);
 				if(at == null)
-				{
 					image.setRGB(x, y, new Color(0,0,0).getRGB());
+				if(at == null)
 					continue;
-				}
 				int red = (at.getRed() == null?0:at.getRed().getType().ordinal());
 				int green = (at.getGreen() == null?0:at.getGreen().getType().ordinal());
 				int blue = (at.getBlue() == null?0:at.getBlue().getType().ordinal());
-				Color color = new Color(red,green,blue);
 				int rgb = 0;
-				rgb = (255<<24) | (red<<16) | (green<<8) | (blue);
+				rgb = red*65536 + green*256 + blue;
 				image.setRGB(x, y, rgb);
 			}
 		}
 		try {
-		      ImageIO.write(image, "jpg", imageFile);
+			ImageIO.write(image, "png", imageFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public TileSlot getTileSlotAt(int x, int y)
 	{
 		for(TileSlot slot : slots)
@@ -85,7 +84,7 @@ public class Grid {
 		return null;
 	}
 
-	
+
 	public TileSlot getTileSlotAtPixel(int x, int y)
 	{
 		for(TileSlot slot : slots)
